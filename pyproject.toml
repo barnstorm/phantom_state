@@ -12,6 +12,7 @@ license = {text = "MIT"}
 dependencies = [
     "sqlite-vec>=0.1.0",
     "sentence-transformers>=2.2.0",
+    "mcp>=0.9.0",
 ]
 
 [project.optional-dependencies]
@@ -27,6 +28,12 @@ all = [
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[project.scripts]
+phantom-state-mcp = "phantom_state.mcp:main"
+
+[tool.setuptools.package-data]
+phantom_state = ["schema.sql"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

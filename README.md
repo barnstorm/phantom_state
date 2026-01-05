@@ -20,11 +20,25 @@ No more relying on prompts to make models "forget" things. Knowledge boundaries 
 
 ## Installation
 
+### Using uv (Recommended - Fast!)
+
 ```bash
 # Clone or download
 git clone <repository-url>
 cd phantom_state
 
+# Install with uv (10-100x faster than pip!)
+uv pip install -e ".[dev]"
+
+# Or just the package
+uv pip install -e .
+```
+
+> **New to uv?** See [UV_SETUP.md](UV_SETUP.md) for installation, configuration, and tips.
+
+### Using pip
+
+```bash
 # Install with dev dependencies
 pip install -e ".[dev]"
 
@@ -36,7 +50,17 @@ pip install -e .
 - Python 3.10+
 - sqlite-vec >= 0.1.0
 - sentence-transformers >= 2.2.0 (local embeddings, default)
+- mcp >= 0.9.0 (Model Context Protocol support)
 - openai >= 1.0.0 (optional, for API embeddings)
+
+## Access Modes
+
+Phantom State can be used in two ways:
+
+1. **Direct Python API** (shown in Quick Start below)
+2. **MCP Server** for Claude Desktop, custom agents, or orchestrators
+
+See [MCP_USAGE.md](MCP_USAGE.md) for MCP server setup and usage.
 
 ## Quick Start
 
@@ -234,8 +258,33 @@ When adding features:
 3. Update CLAUDE.md with any architectural changes
 4. Run the full test suite before submitting
 
+## phantom_scribe Integration
+
+Phantom State can enhance [phantom_scribe](https://github.com/barnstorm/phantom_scribe) story projects with character knowledge boundaries.
+
+```bash
+# Auto-detect and enhance phantom_scribe installations
+python scripts/enhance_phantom_scribe.py
+
+# Or enhance specific project
+python scripts/enhance_phantom_scribe.py --project /path/to/story
+```
+
+This adds:
+- Phantom State MCP server to the project
+- New agents: `state-manager` and `knowledge-query`
+- Templates for tracking character knowledge
+- Full integration guide
+
+**Documentation:**
+- [PHANTOM_SCRIBE_README.md](PHANTOM_SCRIBE_README.md) - Quick start guide
+- [PHANTOM_SCRIBE_INTEGRATION.md](PHANTOM_SCRIBE_INTEGRATION.md) - Complete documentation
+
 ## Documentation
 
 - [CLAUDE.md](CLAUDE.md) - Detailed architecture and development guide
+- [MCP_USAGE.md](MCP_USAGE.md) - MCP server setup and usage
+- [UV_SETUP.md](UV_SETUP.md) - Fast installation with uv
+- [PHANTOM_SCRIBE_INTEGRATION.md](PHANTOM_SCRIBE_INTEGRATION.md) - phantom_scribe integration guide
 - [phantom_state_spec.md](phantom_state_spec.md) - Original specification
 

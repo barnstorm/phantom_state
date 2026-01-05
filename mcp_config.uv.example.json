@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "phantom_state": {
+      "command": "uv",
+      "args": ["run", "--with", "phantom_state", "python", "-m", "phantom_state.mcp"],
+      "env": {
+        "PHANTOM_DB_PATH": "narrative.db",
+        "PHANTOM_EMBEDDING_BACKEND": "local",
+        "PHANTOM_EMBEDDING_MODEL": "all-MiniLM-L6-v2",
+        "PHANTOM_VECTOR_DIMENSIONS": "384"
+      }
+    }
+  }
+}

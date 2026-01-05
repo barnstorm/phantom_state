@@ -1,0 +1,7 @@
+{
+  "db_path": "narrative.db",
+  "embedding_backend": "local",
+  "embedding_model": "all-MiniLM-L6-v2",
+  "openai_model": "text-embedding-3-small",
+  "vector_dimensions": 384
+}

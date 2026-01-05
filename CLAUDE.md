@@ -30,8 +30,10 @@ All queries filter by `take_id IN (ancestry)` to include memories from current b
 ## Build and Test Commands
 
 ```bash
-# Install in dev mode
-pip install -e ".[dev]"
+# Install in dev mode (uv is faster)
+uv pip install -e ".[dev]"
+# Or with pip:
+# pip install -e ".[dev]"
 
 # Run all tests
 pytest
@@ -54,7 +56,8 @@ phantom_state/
 │   ├── schema.sql         # table definitions
 │   ├── queries.py         # SQL builders
 │   ├── embedding.py       # backend abstraction
-│   └── models.py          # dataclasses (includes EngineConfig)
+│   ├── models.py          # dataclasses (includes EngineConfig)
+│   └── mcp.py             # MCP server (NEW)
 ├── tests/
 │   ├── conftest.py        # pytest fixtures
 │   ├── test_schema.py
@@ -62,8 +65,11 @@ phantom_state/
 │   ├── test_queries.py
 │   ├── test_embedding.py
 │   └── test_two_agents.py # core validation test
-└── examples/
-    └── basic_dialogue.py
+├── examples/
+│   ├── basic_dialogue.py
+│   └── mcp_client_example.py  # MCP usage example (NEW)
+├── MCP_USAGE.md           # MCP server documentation (NEW)
+└── mcp_config.example.json    # MCP client config (NEW)
 ```
 
 ## Dependencies
@@ -71,7 +77,17 @@ phantom_state/
 - Python 3.10+
 - sqlite-vec >= 0.1.0
 - sentence-transformers >= 2.2.0 (local embeddings, default)
+- mcp >= 0.9.0 (Model Context Protocol support)
 - openai >= 1.0.0 (optional, API embeddings)
+
+## Access Modes
+
+Phantom State can be accessed in two ways:
+
+1. **Direct Python API**: Import and use `NarrativeStateEngine` directly
+2. **MCP Server**: Run as Model Context Protocol server for Claude Desktop, custom agents, or orchestrators
+
+See [MCP_USAGE.md](MCP_USAGE.md) for MCP server setup and detailed usage guide.
 
 ## Design Constraints
 
