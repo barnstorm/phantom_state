@@ -1,0 +1,5 @@
+sqlite-vec>=0.1.0
+sentence-transformers>=2.2.0
+openai>=1.0.0
+pytest>=7.0.0
+pytest-cov>=4.0.0
