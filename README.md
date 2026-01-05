@@ -238,3 +238,4 @@ When adding features:
 
 - [CLAUDE.md](CLAUDE.md) - Detailed architecture and development guide
 - [phantom_state_spec.md](phantom_state_spec.md) - Original specification
+
