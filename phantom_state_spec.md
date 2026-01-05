@@ -135,6 +135,32 @@ CREATE INDEX idx_{character_id}_memory_take ON {character_id}_memory(take_id);
 CREATE INDEX idx_{character_id}_memory_type ON {character_id}_memory(chunk_type);
 ```
 
+### Corpus (Shared Canon)
+
+Foundational material accessible to all entities without temporal or character gating.
+
+```sql
+-- Shared reference material
+CREATE TABLE IF NOT EXISTS corpus (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    content TEXT NOT NULL,
+    source TEXT,              -- origin file/doc name
+    section TEXT,             -- location within source
+    category TEXT,            -- 'spec', 'canon', 'reference', 'draft', etc.
+    version TEXT,             -- document version
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    metadata TEXT             -- JSON
+);
+
+CREATE INDEX IF NOT EXISTS idx_corpus_source ON corpus(source);
+CREATE INDEX IF NOT EXISTS idx_corpus_category ON corpus(category);
+CREATE INDEX IF NOT EXISTS idx_corpus_version ON corpus(version);
+
+-- Shared vector table for corpus
+CREATE VIRTUAL TABLE IF NOT EXISTS corpus_vec
+USING vec0(embedding float[{dimensions}]);
+```
+
 ---
 
 ## Take Ancestry
@@ -195,6 +221,50 @@ JOIN moments mo ON m.moment_id = mo.id
 WHERE m.take_id IN (SELECT id FROM take_ancestry(:take_id))
   AND mo.sequence <= (SELECT sequence FROM moments WHERE id = :moment_id)
 ORDER BY mo.sequence;
+```
+
+### Corpus Query (Vector Similarity)
+
+```sql
+SELECT c.id, c.content, c.source, c.section, c.category, c.version, c.metadata
+FROM corpus_vec cv
+JOIN corpus c ON cv.rowid = c.id
+WHERE cv.embedding MATCH :query_vector
+  AND k = :limit
+  AND (:category IS NULL OR c.category = :category)
+  AND (:version IS NULL OR c.version = :version)
+  AND (:source IS NULL OR c.source = :source)
+ORDER BY cv.distance;
+```
+
+---
+
+## Three-Tier Retrieval Model
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  CORPUS (ungated)                                           │
+│  - Shared by all entities                                   │
+│  - No temporal restrictions                                 │
+│  - Versioned for document evolution                         │
+│  - The "ground truth" reference layer                       │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│  FACTS + KNOWLEDGE_EVENTS (character + temporal gated)      │
+│  - World truths exist independently                         │
+│  - Characters learn facts at specific moments               │
+│  - Query filters by: character_id, moment.sequence, take    │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│  MEMORIES (character + temporal + take gated)               │
+│  - Experiential chunks (said/heard/internal/perceived)      │
+│  - Fully isolated per character                             │
+│  - Branch-aware via take ancestry                           │
+└─────────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -394,17 +464,28 @@ def query_state(
     take_id: int,
     query_text: str = None,
     fact_limit: int = 50,
-    memory_limit: int = 20
+    memory_limit: int = 20,
+    include_corpus: bool = True,
+    corpus_limit: int = 20,
+    corpus_category: str | None = None,
+    corpus_version: str | None = None,
 ) -> CharacterState:
     """
     Get everything a character knows/has experienced up to moment.
-    If query_text provided, vector similarity orders memories.
-    Otherwise returns chronologically.
-    
+
+    Three retrieval tiers:
+    1. Corpus (shared, ungated) — foundational reference material
+    2. Facts (character + temporal gated) — learned discrete knowledge
+    3. Memories (character + temporal + take gated) — experiential chunks
+
+    If query_text provided, all tiers use vector similarity.
+    Otherwise facts/memories return chronologically, corpus by recency.
+
     Returns:
         CharacterState(
             facts: list[Fact],
             memories: list[Memory],
+            corpus: list[CorpusChunk],
             traits: dict,
             voice: dict
         )
@@ -469,6 +550,112 @@ def get_ancestry(
 
 ---
 
+## Corpus Operations
+
+### Load Corpus Chunk
+
+```python
+def load_corpus_chunk(
+    self,
+    content: str,
+    source: str,
+    section: str | None = None,
+    category: str | None = None,
+    version: str | None = None,
+    metadata: dict | None = None,
+) -> int:
+    """
+    Load a single chunk into shared corpus.
+
+    Args:
+        content: The text content
+        source: Origin document name/path
+        section: Location within source (chapter, page, etc.)
+        category: Type of content ('spec', 'canon', 'reference', 'draft')
+        version: Document version
+        metadata: Additional JSON metadata
+
+    Returns:
+        The corpus chunk id
+    """
+```
+
+### Load Document
+
+```python
+def load_document(
+    self,
+    filepath: str,
+    source: str,
+    category: str,
+    version: str | None = None,
+    chunker: str | None = None,  # defaults to config.chunk_granularity
+    metadata: dict | None = None,
+) -> list[int]:
+    """
+    Load and vectorize a document into corpus.
+
+    Reads file, splits into chunks, embeds each, stores in corpus.
+
+    Args:
+        filepath: Path to document
+        source: Name to store as source
+        category: Category for all chunks
+        version: Version tag for all chunks
+        chunker: Override chunk granularity ('sentence', 'paragraph', 'page')
+        metadata: Additional metadata applied to all chunks
+
+    Returns:
+        List of corpus chunk ids created
+    """
+```
+
+### Query Corpus
+
+```python
+def query_corpus(
+    self,
+    query_text: str,
+    category: str | None = None,
+    version: str | None = None,
+    source: str | None = None,
+    limit: int = 20,
+) -> list[CorpusChunk]:
+    """
+    Query corpus by vector similarity with optional filters.
+
+    Args:
+        query_text: Text to find similar chunks for
+        category: Filter by category
+        version: Filter by version
+        source: Filter by source document
+        limit: Max chunks to return
+
+    Returns:
+        List of CorpusChunk ordered by similarity
+    """
+```
+
+### Delete Corpus Version
+
+```python
+def delete_corpus_version(
+    self,
+    source: str,
+    version: str,
+) -> int:
+    """
+    Delete all corpus chunks for a source/version.
+
+    Use when replacing a document version.
+
+    Returns:
+        Number of chunks deleted
+    """
+```
+
+---
+
 ## Data Classes
 
 ```python
@@ -498,12 +685,23 @@ class Memory:
     moment_id: str
 
 @dataclass
+class CorpusChunk:
+    id: int
+    content: str
+    source: str
+    section: str | None
+    category: str | None
+    version: str | None
+    metadata: dict
+
+@dataclass
 class CharacterState:
     character_id: str
     moment_id: str
     take_id: int
     facts: list[Fact]
     memories: list[Memory]
+    corpus: list[CorpusChunk]  # shared reference material
     traits: dict
     voice: dict
 
@@ -710,6 +908,11 @@ The engine maintains state. What consumers do with that state is their concern.
 | Cross-character experience | Primitives + convenience | Maximum control, less boilerplate for common case |
 | Take garbage collection | Manual only | Caller knows what to preserve |
 | Take ancestry | Recursive CTE | Clean, single query, SQL-native |
+| Single corpus table | Shared, not per-entity | Canon is universal ground truth |
+| Corpus version field | String, not incrementing | Supports semantic versions, draft names |
+| Corpus category filter | Optional on query | Different entity types may need different subsets |
+| No temporal gating for corpus | By design | Corpus is reference, not narrative state |
+| Corpus separate from facts | Facts are learned, corpus is given | Different access patterns |
 
 ---
 

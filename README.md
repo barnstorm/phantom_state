@@ -15,7 +15,7 @@ No more relying on prompts to make models "forget" things. Knowledge boundaries 
 - **Per-character memory isolation** - No character can query another's private memories
 - **Temporal gating** - Knowledge learned at moment M doesn't leak to queries at earlier moments
 - **Branch preservation** - Explore "what if" scenarios without losing narrative history
-- **Dual memory system** - Structured facts + experiential memories with vector similarity
+- **Three-tier retrieval** - Corpus (shared canon) + Facts (learned) + Memories (experiential)
 - **Source tracking** - Record how characters learned information (witnessed/told/inferred/discovered)
 
 ## Installation
@@ -49,7 +49,8 @@ pip install -e .
 **Requirements:**
 - Python 3.10+
 - sqlite-vec >= 0.1.0
-- sentence-transformers >= 2.2.0 (local embeddings, default)
+- sentence-transformers >= 2.2.0, < 5.0.0 (local embeddings)
+- transformers >= 4.0.0, < 4.45.0 (model loading)
 - mcp >= 0.9.0 (Model Context Protocol support)
 - openai >= 1.0.0 (optional, for API embeddings)
 
@@ -118,6 +119,7 @@ engine.close()
 - **Character**: Persistent agent with private memory store
 - **Moment**: Abstract temporal marker for ordering and gating knowledge
 - **Take**: A branch of state for "what if" exploration with full history preservation
+- **Corpus**: Shared reference material (world bible, specs, rules) accessible to all
 - **Fact**: World-level truth that exists independent of who knows it
 - **Knowledge Event**: Records when a character learns a fact (with source attribution)
 - **Memory**: Experiential chunks (dialogue, perception, thoughts) with vector embeddings
@@ -134,6 +136,60 @@ engine.close()
 All queries filter by:
 - `take_id IN (ancestry)` - Include current branch plus all ancestors
 - `moment.sequence <= current_moment.sequence` - Temporal gating
+
+## Three-Tier Retrieval Model
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  CORPUS (ungated)                                           │
+│  - Shared by all characters                                 │
+│  - World bible, specs, rules, canon                         │
+│  - Versioned for document evolution                         │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│  FACTS (character + temporal gated)                         │
+│  - World truths exist independently                         │
+│  - Characters learn facts at specific moments               │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│  MEMORIES (character + temporal + take gated)               │
+│  - Experiential chunks (said/heard/internal/perceived)      │
+│  - Fully isolated per character                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Corpus (Shared Canon)
+
+```python
+# Load reference material
+engine.load_corpus_chunk(
+    content="Time travel requires a minimum 24-hour gap between jumps.",
+    source="world_bible",
+    category="rules",
+    version="1.0"
+)
+
+# Or load entire document
+engine.load_document(
+    filepath="world_bible.md",
+    source="world_bible",
+    category="canon",
+    version="1.0"
+)
+
+# Query state includes corpus automatically
+state = engine.query_state("character", "moment", take,
+    query_text="time travel rules",  # similarity search across all tiers
+    corpus_category="rules"          # filter corpus by category
+)
+print(state.corpus)  # Relevant world rules
+print(state.facts)   # Learned facts
+print(state.memories)  # Experiential memories
+```
 
 ## Memory Types
 

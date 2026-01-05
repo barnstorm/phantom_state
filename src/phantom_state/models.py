@@ -38,6 +38,19 @@ class Memory:
 
 
 @dataclass
+class CorpusChunk:
+    """A chunk of shared reference material."""
+
+    id: int
+    content: str
+    source: str
+    section: str | None
+    category: str | None
+    version: str | None
+    metadata: dict
+
+
+@dataclass
 class CharacterState:
     """Complete state of a character at a given moment."""
 
@@ -46,6 +59,7 @@ class CharacterState:
     take_id: int
     facts: list[Fact] = field(default_factory=list)
     memories: list[Memory] = field(default_factory=list)
+    corpus: list[CorpusChunk] = field(default_factory=list)
     traits: dict = field(default_factory=dict)
     voice: dict = field(default_factory=dict)
 

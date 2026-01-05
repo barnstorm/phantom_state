@@ -105,3 +105,59 @@ def build_vec_table_ddl(character_id: str, dimensions: int) -> str:
     CREATE VIRTUAL TABLE IF NOT EXISTS {safe_id}_vec
     USING vec0(embedding float[{dimensions}])
     """
+
+
+def build_corpus_vec_ddl(dimensions: int) -> str:
+    """Build DDL for creating the corpus vector table."""
+    return f"""
+    CREATE VIRTUAL TABLE IF NOT EXISTS corpus_vec
+    USING vec0(embedding float[{dimensions}])
+    """
+
+
+def build_corpus_query_similarity() -> str:
+    """Build query for corpus with vector similarity.
+
+    Uses sqlite-vec virtual table for KNN search.
+    """
+    return """
+    SELECT c.id, c.content, c.source, c.section, c.category, c.version, c.metadata, cv.distance
+    FROM corpus_vec cv
+    JOIN corpus c ON cv.rowid = c.id
+    WHERE cv.embedding MATCH :query_vector
+      AND k = :limit
+    ORDER BY cv.distance
+    """
+
+
+def build_corpus_query_chronological() -> str:
+    """Build query for corpus in chronological order (by created_at)."""
+    return """
+    SELECT id, content, source, section, category, version, metadata
+    FROM corpus
+    WHERE (:category IS NULL OR category = :category)
+      AND (:version IS NULL OR version = :version)
+      AND (:source IS NULL OR source = :source)
+    ORDER BY created_at DESC
+    LIMIT :limit
+    """
+
+
+def build_corpus_query_filtered_similarity() -> str:
+    """Build query for corpus with vector similarity and filters.
+
+    Note: sqlite-vec doesn't support WHERE clauses with MATCH,
+    so we filter after the KNN search. This means we may return
+    fewer results than requested if many are filtered out.
+    """
+    return """
+    SELECT c.id, c.content, c.source, c.section, c.category, c.version, c.metadata, cv.distance
+    FROM corpus_vec cv
+    JOIN corpus c ON cv.rowid = c.id
+    WHERE cv.embedding MATCH :query_vector
+      AND k = :limit
+      AND (:category IS NULL OR c.category = :category)
+      AND (:version IS NULL OR c.version = :version)
+      AND (:source IS NULL OR c.source = :source)
+    ORDER BY cv.distance
+    """

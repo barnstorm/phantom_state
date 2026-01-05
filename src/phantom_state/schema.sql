@@ -4,7 +4,7 @@
 -- Temporal Structure
 CREATE TABLE IF NOT EXISTS moments (
     id TEXT PRIMARY KEY,
-    sequence INTEGER UNIQUE NOT NULL,
+    sequence REAL UNIQUE NOT NULL,  -- float allowed for insertion between existing moments
     label TEXT,
     metadata TEXT  -- JSON
 );
@@ -72,3 +72,19 @@ CREATE INDEX IF NOT EXISTS idx_memory_character ON memory_metadata(character_id)
 CREATE INDEX IF NOT EXISTS idx_memory_moment ON memory_metadata(moment_id);
 CREATE INDEX IF NOT EXISTS idx_memory_take ON memory_metadata(take_id);
 CREATE INDEX IF NOT EXISTS idx_memory_type ON memory_metadata(chunk_type);
+
+-- Corpus (Shared Canon) - foundational material accessible to all entities
+CREATE TABLE IF NOT EXISTS corpus (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    content TEXT NOT NULL,
+    source TEXT,              -- origin file/doc name
+    section TEXT,             -- location within source
+    category TEXT,            -- 'spec', 'canon', 'reference', 'draft', etc.
+    version TEXT,             -- document version
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    metadata TEXT             -- JSON
+);
+
+CREATE INDEX IF NOT EXISTS idx_corpus_source ON corpus(source);
+CREATE INDEX IF NOT EXISTS idx_corpus_category ON corpus(category);
+CREATE INDEX IF NOT EXISTS idx_corpus_version ON corpus(version);

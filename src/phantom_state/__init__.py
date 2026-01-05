@@ -4,6 +4,7 @@ from phantom_state.models import (
     EngineConfig,
     Fact,
     Memory,
+    CorpusChunk,
     CharacterState,
     Take,
 )
@@ -16,6 +17,7 @@ __all__ = [
     "EngineConfig",
     "Fact",
     "Memory",
+    "CorpusChunk",
     "CharacterState",
     "Take",
 ]
