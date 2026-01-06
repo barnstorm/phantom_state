@@ -13,7 +13,7 @@ This adds **character knowledge boundaries** to your phantom_scribe projects.
 
 ### 1. Automatic MCP Setup
 - Phantom State MCP server configured in `.claude/mcp_config.json`
-- Ready to use with Claude Code
+- Ready to use with Claude Code (Codex CLI users can reuse the same MCP server settings in their Codex MCP config)
 - Uses `uv` for zero-config dependency management
 
 ### 2. New Agents
@@ -71,9 +71,9 @@ cd phantom_state
 python scripts/enhance_phantom_scribe.py --project ~/stories/my_mystery
 ```
 
-### 2. Restart Claude Code
+### 2. Restart Your MCP Client
 
-Pick up new agents and MCP configuration.
+Pick up new agents and MCP configuration (Claude Code) or reload your Codex CLI session after adding MCP config.
 
 ### 3. Set Up State (state-manager)
 

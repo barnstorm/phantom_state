@@ -103,7 +103,7 @@ Exposed engine operations as **tools** rather than resources:
 
 ```
 ┌─────────────────────────────────────────┐
-│  Client (Claude Desktop / Custom Agent) │
+│  Client (Codex CLI / Claude Desktop / Custom Agent) │
 └────────────────┬────────────────────────┘
                  │ MCP protocol (stdio)
 ┌────────────────▼────────────────────────┐
@@ -183,9 +183,9 @@ Potential additions (not implemented):
 
 ## Integration Examples
 
-### With Claude Desktop
+### With Codex CLI / Claude Desktop
 
-Add to Claude Desktop MCP config, then:
+Add to your MCP client config, then:
 
 ```
 User: "Create a detective mystery with two characters who know different clues."

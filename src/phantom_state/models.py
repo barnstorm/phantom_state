@@ -8,7 +8,7 @@ class EngineConfig:
     """Configuration for NarrativeStateEngine."""
 
     db_path: str
-    embedding_backend: str = "local"  # "local" | "openai"
+    embedding_backend: str = "local"  # "local" | "openai" | "hash"
     embedding_model: str = "all-MiniLM-L6-v2"  # for local
     openai_model: str = "text-embedding-3-small"  # if backend="openai"
     chunk_granularity: str = "paragraph"  # "sentence" | "paragraph" | "beat" | "manual"

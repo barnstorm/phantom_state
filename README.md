@@ -59,7 +59,7 @@ pip install -e .
 Phantom State can be used in two ways:
 
 1. **Direct Python API** (shown in Quick Start below)
-2. **MCP Server** for Claude Desktop, custom agents, or orchestrators
+2. **MCP Server** for Codex CLI, Claude Desktop, custom agents, or orchestrators
 
 See [MCP_USAGE.md](MCP_USAGE.md) for MCP server setup and usage.
 
@@ -282,7 +282,7 @@ from phantom_state import EngineConfig
 config = EngineConfig(
     db_path="story.db",
     embedding_backend="local",
-    embedding_dimensions=384  # all-MiniLM-L6-v2 default
+    vector_dimensions=384  # all-MiniLM-L6-v2 default
 )
 
 # OpenAI embeddings
@@ -290,7 +290,7 @@ config = EngineConfig(
     db_path="story.db",
     embedding_backend="openai",
     openai_model="text-embedding-3-small",
-    embedding_dimensions=1536
+    vector_dimensions=1536
 )
 ```
 
@@ -311,7 +311,7 @@ This project follows test-driven development. All core functionality should have
 When adding features:
 1. Write tests first
 2. Ensure `tests/test_two_agents.py` still passes
-3. Update CLAUDE.md with any architectural changes
+3. Update `CLAUDE.md` and `AGENTS.md` with any architectural changes
 4. Run the full test suite before submitting
 
 ## phantom_scribe Integration
@@ -339,8 +339,8 @@ This adds:
 ## Documentation
 
 - [CLAUDE.md](CLAUDE.md) - Detailed architecture and development guide
+- [AGENTS.md](AGENTS.md) - Codex CLI repository guidance
 - [MCP_USAGE.md](MCP_USAGE.md) - MCP server setup and usage
 - [UV_SETUP.md](UV_SETUP.md) - Fast installation with uv
 - [PHANTOM_SCRIBE_INTEGRATION.md](PHANTOM_SCRIBE_INTEGRATION.md) - phantom_scribe integration guide
 - [phantom_state_spec.md](phantom_state_spec.md) - Original specification
-

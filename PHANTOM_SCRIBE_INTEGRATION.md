@@ -38,9 +38,11 @@ This adds:
 - Templates for tracking character knowledge
 - State management guide
 
-### 3. Restart Claude Code
+If you're using Codex CLI (instead of Claude Code), add the Phantom State MCP server to your Codex MCP configuration using `mcp_config.example.json` or `mcp_config.uv.example.json` as a starting point.
 
-Reload to pick up the new agents and MCP server.
+### 3. Restart Your MCP Client
+
+Reload to pick up the new agents and/or MCP server.
 
 ## Quick Start
 

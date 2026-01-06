@@ -74,9 +74,9 @@ python -m phantom_state.mcp
 
 ## MCP Client Configuration
 
-### For Claude Desktop (with uv)
+### For Codex CLI / Claude Desktop (with uv)
 
-Add to your Claude Desktop MCP configuration:
+Add to your MCP client configuration:
 
 ```json
 {
@@ -100,7 +100,7 @@ Add to your Claude Desktop MCP configuration:
 - `--with phantom_state` ensures phantom_state is installed
 - Automatic dependency management - no manual installation needed!
 
-### For Claude Desktop (traditional)
+### For Codex CLI / Claude Desktop (traditional)
 
 If you prefer traditional installation:
 

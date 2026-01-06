@@ -7,7 +7,7 @@ from phantom_state import NarrativeStateEngine, EngineConfig
 @pytest.fixture
 def engine():
     """Create an in-memory engine for testing."""
-    config = EngineConfig(db_path=":memory:")
+    config = EngineConfig(db_path=":memory:", embedding_backend="hash")
     engine = NarrativeStateEngine(config)
     yield engine
     engine.close()

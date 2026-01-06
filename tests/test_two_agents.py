@@ -13,7 +13,7 @@ def test_bounded_knowledge():
     Two characters, divergent knowledge.
     Verify retrieval returns only appropriate state.
     """
-    engine = NarrativeStateEngine(EngineConfig(db_path=":memory:"))
+    engine = NarrativeStateEngine(EngineConfig(db_path=":memory:", embedding_backend="hash"))
 
     try:
         engine.register_character("a", "Character A", {}, {})
@@ -42,7 +42,7 @@ def test_shared_experience_separate_knowledge():
     """
     Characters can share experiences but have different factual knowledge.
     """
-    engine = NarrativeStateEngine(EngineConfig(db_path=":memory:"))
+    engine = NarrativeStateEngine(EngineConfig(db_path=":memory:", embedding_backend="hash"))
 
     try:
         engine.register_character("webb", "Dr. Webb",
@@ -103,7 +103,7 @@ def test_knowledge_revealed_over_time():
     Character learns a fact later in the narrative.
     State at earlier moment should not include the fact.
     """
-    engine = NarrativeStateEngine(EngineConfig(db_path=":memory:"))
+    engine = NarrativeStateEngine(EngineConfig(db_path=":memory:", embedding_backend="hash"))
 
     try:
         engine.register_character("detective", "Detective", {}, {})
@@ -150,7 +150,7 @@ def test_branch_alternate_revelations():
     """
     Different branches can have different knowledge revelations.
     """
-    engine = NarrativeStateEngine(EngineConfig(db_path=":memory:"))
+    engine = NarrativeStateEngine(EngineConfig(db_path=":memory:", embedding_backend="hash"))
 
     try:
         engine.register_character("hero", "Hero", {}, {})

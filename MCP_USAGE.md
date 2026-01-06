@@ -5,7 +5,7 @@ This guide explains how to use Phantom State through its Model Context Protocol 
 ## Overview
 
 The MCP server exposes Phantom State's narrative engine through standardized tools that can be called by:
-- Claude Desktop or other MCP clients
+- Codex CLI, Claude Desktop, or other MCP clients
 - Custom orchestrator agents
 - Interactive DM workflows
 - Automated narrative systems
@@ -42,7 +42,7 @@ Copy `.env.example` to `.env` and configure:
 
 ```bash
 PHANTOM_DB_PATH=narrative.db
-PHANTOM_EMBEDDING_BACKEND=local  # or "openai"
+PHANTOM_EMBEDDING_BACKEND=local  # "local" | "openai" | "hash"
 PHANTOM_EMBEDDING_MODEL=all-MiniLM-L6-v2
 PHANTOM_OPENAI_MODEL=text-embedding-3-small
 PHANTOM_VECTOR_DIMENSIONS=384
@@ -50,7 +50,7 @@ PHANTOM_VECTOR_DIMENSIONS=384
 
 ### MCP Client Configuration
 
-For Claude Desktop or similar MCP clients, add to your MCP settings:
+For Codex CLI, Claude Desktop, or similar MCP clients, add to your MCP settings:
 
 **Using standard Python** (see [mcp_config.example.json](mcp_config.example.json)):
 ```json
@@ -350,6 +350,10 @@ Claude:
 3. Uses `log_knowledge` to mark Alice learning the fact
 4. Queries Alice's new state
 5. Generates Alice's response based on her updated knowledge
+
+### With Codex CLI
+
+When Codex CLI has Phantom State MCP configured, the same workflow applies: branch with `create_take`, record events with `dialogue`/`embed_memory`, gate knowledge with `log_knowledge`, then `query_state` before generating POV text.
 ```
 
 ### With Custom Orchestrator

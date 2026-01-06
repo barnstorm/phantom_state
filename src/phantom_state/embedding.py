@@ -2,6 +2,8 @@
 
 from typing import Protocol
 import json
+import hashlib
+import random
 
 
 class EmbeddingBackend(Protocol):
@@ -80,3 +82,30 @@ class OpenAIEmbedding:
 def serialize_vector(vec: list[float]) -> str:
     """Serialize a vector to JSON for sqlite-vec."""
     return json.dumps(vec)
+
+
+class HashEmbedding:
+    """Deterministic, dependency-free embedding backend.
+
+    Intended for tests and constrained environments where heavyweight ML
+    dependencies (torch/sentence-transformers) are undesirable.
+    """
+
+    def __init__(self, dimensions: int = 384):
+        self._dimensions = dimensions
+
+    def _rng_for_text(self, text: str) -> random.Random:
+        digest = hashlib.sha256(text.encode("utf-8")).digest()
+        seed = int.from_bytes(digest[:8], "big", signed=False)
+        return random.Random(seed)
+
+    def embed(self, text: str) -> list[float]:
+        rng = self._rng_for_text(text)
+        return [rng.uniform(-1.0, 1.0) for _ in range(self._dimensions)]
+
+    def embed_batch(self, texts: list[str]) -> list[list[float]]:
+        return [self.embed(t) for t in texts]
+
+    @property
+    def dimensions(self) -> int:
+        return self._dimensions

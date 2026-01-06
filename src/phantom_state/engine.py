@@ -18,6 +18,7 @@ from phantom_state.embedding import (
     EmbeddingBackend,
     LocalEmbedding,
     OpenAIEmbedding,
+    HashEmbedding,
     serialize_vector,
 )
 from phantom_state.queries import (
@@ -71,8 +72,16 @@ class NarrativeStateEngine:
             self._embedding: EmbeddingBackend = OpenAIEmbedding(
                 model=self.config.openai_model
             )
+        elif self.config.embedding_backend == "hash":
+            self._embedding = HashEmbedding(dimensions=self.config.vector_dimensions)
         else:
             self._embedding = LocalEmbedding(model_name=self.config.embedding_model)
+
+        if self._embedding.dimensions != self.config.vector_dimensions:
+            raise ValueError(
+                "Embedding dimensions mismatch: "
+                f"backend={self._embedding.dimensions} config={self.config.vector_dimensions}"
+            )
 
     def close(self) -> None:
         """Close database connection."""
